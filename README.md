@@ -1,62 +1,35 @@
 # AskPDF
 A multi-tenant Retrieval-Augmented Generation (RAG) backend API built with Node.js, Express, and PostgreSQL (pgvector) for secure, AI-powered document interaction and hybrid search.
-🚀 Getting Started
-1. Prerequisites
-Node.js (v18+)
 
-Docker Desktop (Highly recommended for database setup)
+## 🚀 Features
 
-TypeScript globally installed
+* **Multi-Tenant Architecture:** Users can create and manage isolated projects. Search and AI interactions are strictly scoped to individual projects.
+* **Document Processing:** Direct in-memory parsing of PDF and TXT files using LangChain text splitters.
+* **Hybrid Search:** Combines semantic similarity (via `pgvector` Cosine Distance) with keyword matching (PostgreSQL Full-Text Search) for highly accurate context retrieval.
+* **AI Question Answering:** Powered by OpenAI's `gpt-3.5-turbo` and `text-embedding-3-small`, returning context-aware answers alongside the source document snippets.
+* **Feedback Loop:** Built-in endpoints to track and retrieve AI response performance (Helpful / Not Helpful metrics).
+* **Robust Security:** JWT-based authentication and route-level ownership validation.
 
-2. Installation
-Clone the repository and install dependencies.
+## 🛠️ Tech Stack
 
-⚠️ CRITICAL: You must use the --legacy-peer-deps flag to bypass strict version conflicts between dotenv and @langchain/community sub-dependencies.
+* **Backend Framework:** Node.js, Express, TypeScript
+* **Database:** PostgreSQL with `pgvector` extension
+* **ORM:** Prisma
+* **AI & Embeddings:** LangChain, OpenAI API
+* **File Handling:** Multer (Memory Storage), pdf-parse
 
-Bash
-npm install --legacy-peer-deps
-3. Database & pgvector Setup (Docker Route)
-To avoid the complexities of natively compiling C++ extensions on Windows, run the pre-configured pgvector Docker container:
+---
 
-Bash
-docker run --name rag-postgres -e POSTGRES_PASSWORD=YourSecurePassword -e POSTGRES_DB=rag_db -p 5432:5432 -d ankane/pgvector
-4. Environment Variables
-Create a .env file in the root directory.
+## ⚙️ Local Setup Instructions
 
-Code snippet
-# Database Connection String
-# IMPORTANT: URL-encode any special characters in your password (e.g., @ becomes %40)
-DATABASE_URL="postgresql://postgres:YourSecurePassword@localhost:5432/rag_db?schema=public"
+### 1. Prerequisites
+* Node.js (v18+)
+* PostgreSQL (Ensure the `pgvector` extension is supported/installed)
+* An OpenAI API Key
 
-# Authentication
-JWT_SECRET="your_super_secret_jwt_key_here"
-5. Prisma Configuration (Version 7+)
-This project uses Prisma 7, which requires a dedicated configuration file outside of the schema.prisma. Ensure prisma.config.ts exists in your root directory:
-
-TypeScript
-import "dotenv/config";
-import { defineConfig, env } from "prisma/config";
-
-export default defineConfig({
-  schema: "prisma/schema.prisma",
-  datasource: {
-    url: env("DATABASE_URL"),
-  },
-});
-6. Generate and Migrate
-Initialize your database tables and generate the local Prisma Client:
-
-Bash
-# 1. Generate the custom Prisma Client into /prisma/generated/client
-npx prisma generate
-
-# 2. Apply migrations to the database
-npx prisma migrate dev
-(Note: If migrating for the first time natively without Docker, ensure CREATE EXTENSION IF NOT EXISTS vector; is manually added to your initial SQL migration file).
-
-🧠 Important Note: Local Model Adaptation
-By default, the DocumentChunk schema is configured for 1536 dimensions (OpenAI standard):
-
-Code snippet
-embedding Unsupported("vector(1536)")
-If project requirements dictate strictly local model usage (e.g., using Ollama with nomic-embed-text to avoid third-party APIs), you must adjust this dimension size in schema.prisma (e.g., to 768) before running your initial database migration.
+### 2. Installation
+Clone the repository and install the dependencies:
+```bash
+git clone <your-repository-url>
+cd vectorvault
+npm install
