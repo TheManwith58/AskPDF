@@ -1,0 +1,28 @@
+import express, { Request, Response } from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { askQuestion, submitFeedback, getFeedbackStats } from './modules/chat/chat.controller';
+import { register, login } from './modules/auth/auth.controller';
+import { requireAuth } from './middleware/auth.middleware';
+import { createProject, getProjects, deleteProject } from './modules/project/project.controller';
+import { uploadDocument } from './middleware/upload.middleware';
+import { uploadFile } from './modules/document/document.controller';
+import { errorHandler } from './middleware/error.middleware';
+dotenv.config();
+const app = express();
+const PORT = process.env.PORT || 3000;
+app.use(cors());
+app.use(express.json());
+app.post('/api/auth/register', register);
+app.post('/api/auth/login', login);
+app.post('/api/projects', requireAuth, createProject);
+app.get('/api/projects', requireAuth, getProjects);
+app.delete('/api/projects/:id', requireAuth, deleteProject);
+app.post('/api/projects/:projectId/documents', requireAuth, uploadDocument.single('file'), uploadFile);
+app.post('/api/projects/:projectId/chat', requireAuth, askQuestion);
+app.post('/api/projects/:projectId/feedback', requireAuth, submitFeedback);
+app.get('/api/projects/:projectId/feedback/stats', requireAuth, getFeedbackStats);
+app.use(errorHandler);
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
